@@ -8,6 +8,7 @@
 #include <TimeSystem.hpp>
 
 #include "MovementComponent.hpp"
+#include "PathMovementComponent.hpp"
 
 void Invaders::MovementSystem::MovementUpdatePhase(Poly::World* world)
 {
@@ -15,6 +16,79 @@ void Invaders::MovementSystem::MovementUpdatePhase(Poly::World* world)
 	MovementComponent* movement;
 	Poly::TransformComponent* transform;
 
+	
+	for (auto tuple : world->IterateComponents<PathMovementComponent, MovementComponent, Poly::TransformComponent>())
+	{
+		movement = std::get<MovementComponent*>(tuple);
+		PathMovementComponent* path = std::get<PathMovementComponent*>(tuple);
+		transform = std::get<Poly::TransformComponent*>(tuple);
+
+		double threshold2 = 1;
+		double velocity = path->GetVelocity();
+
+		if (!path->GetHasStarted())
+		{
+			path->CurrentPoint = path->PointsQueue.Front();
+			path->PointsQueue.PopFront();
+			if (path->GetIsPathRelative())
+			{
+				path->CurrentPoint += transform->GetLocalTranslation();
+			}
+			path->SetHasStarted(true);
+		}
+
+		if ((pow(transform->GetLocalTranslation().X - path->CurrentPoint.X, 2)
+			+ pow(transform->GetLocalTranslation().Z - path->CurrentPoint.Z, 2)
+			+ pow(transform->GetLocalTranslation().Y - path->CurrentPoint.Y, 2)) < threshold2)
+		{
+			if (path->PointsQueue.GetSize() != 0)
+			{
+				path->CurrentPoint = path->PointsQueue.Front();
+				path->PointsQueue.PopFront();
+				if (path->GetIsPathRelative())
+				{
+					path->CurrentPoint += transform->GetLocalTranslation();
+				}
+				Poly::Vector direction = path->CurrentPoint - transform->GetLocalTranslation();
+				movement->LinearVelocity = direction.Normalize();
+			}
+			else
+			{
+				if (path->GetIsRepeat())
+				{
+					path->PointsQueue = path->BackupPointsQueue;
+				}
+				else
+				{
+					movement->LinearVelocity = { 0.0f,0.0f,0.0f };
+					movement->LinearAcceleration = { 0.0f,0.0f,0.0f };
+				}
+				
+			}
+			
+		}
+		else
+		{
+			Poly::Vector direction = path->CurrentPoint - transform->GetLocalTranslation();
+			movement->LinearVelocity = direction.Normalize() * movement->LinearVelocity.Length();
+		}
+
+
+		if (movement->LinearVelocity.Length2() != 0)
+		{
+			if (movement->LinearVelocity.Length2() > velocity  * velocity)
+			{
+				movement->LinearVelocity.Normalize();
+				movement->LinearVelocity *= path->GetVelocity();
+			}
+			else if (movement->LinearVelocity.Length2() < velocity  * velocity)
+			{
+				movement->LinearAcceleration = movement->LinearVelocity;
+				movement->LinearAcceleration.Normalize();
+				movement->LinearAcceleration *= path->GetAcceleration();
+			}
+		}
+	}
 	for (auto tuple : world->IterateComponents<MovementComponent, Poly::TransformComponent>())
 	{
 		movement = std::get<MovementComponent*>(tuple);

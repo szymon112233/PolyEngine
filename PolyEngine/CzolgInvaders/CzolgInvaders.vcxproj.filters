@@ -56,6 +56,9 @@
     <ClInclude Include="Src\TankComponent.hpp">
       <Filter>Source Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="Src\PathMovementComponent.hpp">
+      <Filter>Source Files\MovementSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\InvadersGame.cpp">

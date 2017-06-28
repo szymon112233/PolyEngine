@@ -17,6 +17,7 @@
 #include "CollisionComponent.hpp"
 #include "CollisionSystem.hpp"
 #include "TankComponent.hpp"
+#include "PathMovementComponent.hpp"
 
 using namespace Poly;
 
@@ -29,6 +30,7 @@ void InvadersGame::Init()
 	Engine->RegisterComponent<GameManagerComponent>((int)eGameComponents::GAMEMANAGER);
 	Engine->RegisterComponent<EnemyMovementComponent>((int)eGameComponents::ENEMYMOVEMENT);
 	Engine->RegisterComponent<Invaders::MovementSystem::MovementComponent>((int)eGameComponents::MOVEMENT);
+	Engine->RegisterComponent<Invaders::MovementSystem::PathMovementComponent>((int)eGameComponents::PATHMOVEMENT);
 	Engine->RegisterComponent<Invaders::CollisionSystem::CollisionComponent>((int)eGameComponents::COLLISION);
 	Engine->RegisterComponent<Invaders::TankComponent>((int)eGameComponents::TANK);
 	
@@ -51,9 +53,15 @@ void InvadersGame::Init()
 	cameraTrans->SetLocalTranslation(Vector(0.0f, 20.0f, 60.0f));
 	cameraTrans->SetLocalRotation(Quaternion({ 1, 0, 0 }, -30_deg));
 
-	for (int i = -10; i < 0; ++i)
+	Queue<Vector> testPath;
+	//testPath.PushBack({ 0,0,0 });
+	testPath.PushBack({ 10,0,0 });
+	testPath.PushBack({ 0,0,10 });
+	testPath.PushBack({ -10,0,0 });
+	testPath.PushBack({ 0,0,-10 });
+	for (int i = -1; i < 0; ++i)
 	{
-		for (int j = -2; j < 1; ++j)
+		for (int j = 0; j < 1; ++j)
 		{
 			auto ent = DeferredTaskSystem::SpawnEntityImmediate(&Engine->GetWorld());
 			DeferredTaskSystem::AddComponentImmediate<Poly::TransformComponent>(&Engine->GetWorld(), ent);
@@ -63,7 +71,9 @@ void InvadersGame::Init()
 			auto base = DeferredTaskSystem::SpawnEntityImmediate(&Engine->GetWorld());
 			DeferredTaskSystem::AddComponentImmediate<Poly::TransformComponent>(&Engine->GetWorld(), base);
 			DeferredTaskSystem::AddComponentImmediate<Poly::MeshRenderingComponent>(&Engine->GetWorld(), base, "model-tank/base.fbx");
-			DeferredTaskSystem::AddComponentImmediate<Invaders::MovementSystem::MovementComponent>(&Engine->GetWorld(), base, Vector(5, 0, 0), Vector(0, 0, 0), Quaternion(Vector(0, 0, 0), 0_deg), Quaternion(Vector(0, 0, 0), 0_deg));
+			DeferredTaskSystem::AddComponentImmediate<Invaders::MovementSystem::MovementComponent>(&Engine->GetWorld(), base, Vector(5, 0, 0), Vector(0, 0, 0), 
+				Quaternion(Vector(0, 0, 0), 0_deg), Quaternion(Vector(0, 0, 0), 0_deg));
+			DeferredTaskSystem::AddComponentImmediate<Invaders::MovementSystem::PathMovementComponent>(&Engine->GetWorld(), base, testPath, 10.0f, 0.1f, true, true);
 			DeferredTaskSystem::AddComponentImmediate<Invaders::CollisionSystem::CollisionComponent>(&Engine->GetWorld(), base,  Vector(0, 0, 0), Vector(5.0f, 5.0f, 5.0f));
 			DeferredTaskSystem::AddComponentImmediate<Invaders::TankComponent>(&Engine->GetWorld(), base,  ent, 12.0_deg, (i * j)%5 );
 			Poly::TransformComponent* baseTransform = Engine->GetWorld().GetComponent<Poly::TransformComponent>(base);

@@ -165,6 +165,7 @@
     <ClInclude Include="Src\GameManagerSystem.hpp" />
     <ClInclude Include="Src\MovementComponent.hpp" />
     <ClInclude Include="Src\MovementSystem.hpp" />
+    <ClInclude Include="Src\PathMovementComponent.hpp" />
     <ClInclude Include="Src\PlayerControllerComponent.hpp" />
     <ClInclude Include="Src\InvadersGame.hpp" />
     <ClInclude Include="Src\TankComponent.hpp" />
