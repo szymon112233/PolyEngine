@@ -3,7 +3,7 @@
 #include <ComponentBase.hpp>
 #include <Vector.hpp>
 #include <Quaternion.hpp>
-#include <Queue.hpp>
+#include <Dynarray.hpp>
 
 #include "MovementSystem.hpp"
 
@@ -15,36 +15,37 @@ namespace Invaders
 		class PathMovementComponent : public Poly::ComponentBase
 		{
 		public:
-			PathMovementComponent(Poly::Queue<Poly::Vector>& points, double velocity, double acceleration, bool isRepeat = false, bool isRelative = false) :
-				PointsQueue(points),
+			PathMovementComponent(Poly::Dynarray<Poly::Vector>& points, double velocity, double acceleration, bool isRepeat = false) :
+				Points(points),
 				Velocity(velocity),
 				Acceleration(acceleration),
-				IsPathRelative(isRelative),
+				PathOffset({ 0.0, 0.0, 0.0 }),
 				IsRepeat(isRepeat)
-
-			{
-				HasStarted = false;
-				if (IsRepeat)
-					BackupPointsQueue = PointsQueue;
-			}
+			{}
+			PathMovementComponent(Poly::Dynarray<Poly::Vector>& points, double velocity, double acceleration, Poly::Vector& offset, bool isRepeat = false) :
+				Points(points),
+				Velocity(velocity),
+				Acceleration(acceleration),
+				PathOffset(offset),
+				IsRepeat(isRepeat)
+			{}
 			PathMovementComponent() {}
 			~PathMovementComponent() {}
 			double const GetVelocity() { return Velocity; }
 			double const GetAcceleration() { return Acceleration; }
-			bool const GetIsPathRelative() { return IsPathRelative; }
 			bool const GetIsRepeat() { return IsRepeat; }
-			bool const GetHasStarted() { return HasStarted; }
-			void SetHasStarted(bool value) { HasStarted = value; }
+			int GetCurrentPoint() { return CurrentPoint; }
+			void SetCurrentPoint(int value) { CurrentPoint = value; }
+			Poly::Vector const GetPathOffset() { return PathOffset; }
+			void SetPathOffset(Poly::Vector new_offset) { PathOffset = new_offset; }
 
-			Poly::Queue<Poly::Vector> PointsQueue;
-			Poly::Queue<Poly::Vector> BackupPointsQueue;
-			Poly::Vector CurrentPoint;
+			Poly::Dynarray<Poly::Vector> Points;
 
 		private:
 			double Velocity;
 			double Acceleration;
-			bool IsPathRelative;
-			bool HasStarted;
+			int CurrentPoint = 0;
+			Poly::Vector PathOffset;
 			bool IsRepeat;
 		};
 	}

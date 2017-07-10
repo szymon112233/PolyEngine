@@ -26,50 +26,40 @@ void Invaders::MovementSystem::MovementUpdatePhase(Poly::World* world)
 		double threshold2 = 1;
 		double velocity = path->GetVelocity();
 
-		if (!path->GetHasStarted())
+		if ((pow(transform->GetLocalTranslation().X - (path->Points[path->GetCurrentPoint()] + path->GetPathOffset()).X, 2)
+			+ pow(transform->GetLocalTranslation().Z - (path->Points[path->GetCurrentPoint()] + path->GetPathOffset()).Z, 2)
+			+ pow(transform->GetLocalTranslation().Y - (path->Points[path->GetCurrentPoint()] + path->GetPathOffset()).Y, 2)) < threshold2)
 		{
-			path->CurrentPoint = path->PointsQueue.Front();
-			path->PointsQueue.PopFront();
-			if (path->GetIsPathRelative())
+			if (path->Points.GetSize() - 1 > path->GetCurrentPoint())
 			{
-				path->CurrentPoint += transform->GetLocalTranslation();
-			}
-			path->SetHasStarted(true);
-		}
-
-		if ((pow(transform->GetLocalTranslation().X - path->CurrentPoint.X, 2)
-			+ pow(transform->GetLocalTranslation().Z - path->CurrentPoint.Z, 2)
-			+ pow(transform->GetLocalTranslation().Y - path->CurrentPoint.Y, 2)) < threshold2)
-		{
-			if (path->PointsQueue.GetSize() != 0)
-			{
-				path->CurrentPoint = path->PointsQueue.Front();
-				path->PointsQueue.PopFront();
-				if (path->GetIsPathRelative())
-				{
-					path->CurrentPoint += transform->GetLocalTranslation();
-				}
-				Poly::Vector direction = path->CurrentPoint - transform->GetLocalTranslation();
+				int new_value = path->GetCurrentPoint();
+				new_value++;
+				path->SetCurrentPoint(new_value);
+				if (path->GetPathOffset().Length2() != 0.0f)
+					path->SetPathOffset(transform->GetLocalTranslation());
+				Poly::Vector direction = (path->Points[path->GetCurrentPoint()] + path->GetPathOffset()) - transform->GetLocalTranslation();
 				movement->LinearVelocity = direction.Normalize();
 			}
 			else
 			{
 				if (path->GetIsRepeat())
 				{
-					path->PointsQueue = path->BackupPointsQueue;
+					path->SetCurrentPoint(0);
+					if (path->GetPathOffset().Length2() != 0.0f)
+						path->SetPathOffset(transform->GetLocalTranslation());
+					Poly::Vector direction = (path->Points[path->GetCurrentPoint()] + path->GetPathOffset()) - transform->GetLocalTranslation();
+					movement->LinearVelocity = direction.Normalize();
 				}
 				else
 				{
 					movement->LinearVelocity = { 0.0f,0.0f,0.0f };
 					movement->LinearAcceleration = { 0.0f,0.0f,0.0f };
 				}
-				
 			}
-			
 		}
 		else
 		{
-			Poly::Vector direction = path->CurrentPoint - transform->GetLocalTranslation();
+			Poly::Vector direction = (path->Points[path->GetCurrentPoint()] + path->GetPathOffset()) - transform->GetLocalTranslation();
 			movement->LinearVelocity = direction.Normalize() * movement->LinearVelocity.Length();
 		}
 
