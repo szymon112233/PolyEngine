@@ -35,7 +35,7 @@ enum class eGameComponents
 DECLARE_GAME()
 class GAME_DLLEXPORT InvadersGame : public Poly::IGame {
 public:
-	void RegisterEngine(Poly::Engine* engine) override { Engine = engine; }
+	void RegisterEngine(Poly::Engine* engine) override { }
 	
 	void Init() override;
 	void Deinit() override;
@@ -45,6 +45,5 @@ private:
 	Poly::UniqueID GameManager;
 
 	Poly::Dynarray<Poly::UniqueID> GameEntities;
-	Poly::Engine* Engine;
 	Poly::MeshResource* BulletMesh;
 };
