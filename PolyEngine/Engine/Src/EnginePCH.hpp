@@ -29,6 +29,7 @@
 // Components
 #include "CameraComponent.hpp"
 #include "FreeFloatMovementComponent.hpp"
+#include "MovementComponent.hpp"
 #include "MeshRenderingComponent.hpp"
 #include "ScreenSpaceTextComponent.hpp"
 #include "TransformComponent.hpp"

@@ -247,5 +247,8 @@
     <ClInclude Include="Src\RenderingSystem.hpp">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Src\MovementComponent.hpp">
+      <Filter>Source Files\Movement</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

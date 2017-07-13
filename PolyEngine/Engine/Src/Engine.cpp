@@ -19,6 +19,7 @@ Engine::Engine(std::unique_ptr<IGame> game, std::unique_ptr<IRenderingDevice> de
 	RegisterComponent<CameraComponent>((size_t)eEngineComponents::BASE_CAMERA);
 	RegisterComponent<MeshRenderingComponent>((size_t)eEngineComponents::MESH_RENDERING);
 	RegisterComponent<FreeFloatMovementComponent>((size_t)eEngineComponents::FREE_FLOAT_MOVEMENT);
+	RegisterComponent<MovementComponent>((size_t)eEngineComponents::MOVEMENT);
 	RegisterComponent<ScreenSpaceTextComponent>((size_t)eEngineComponents::SCREEN_SPACE_TEXT);
 
 	// Engine World Components

@@ -6,6 +6,8 @@ using namespace Poly;
 
 void MovementSystem::MovementUpdatePhase(World* world)
 {
+	float deltaTime = TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY);
+
 	for (auto freeFloatTuple : world->IterateComponents<FreeFloatMovementComponent, TransformComponent>())
 	{
 		TransformComponent* transCmp = std::get<TransformComponent*>(freeFloatTuple);
@@ -24,7 +26,7 @@ void MovementSystem::MovementUpdatePhase(World* world)
 
 		if (move.Length2() > 0)
 			move.Normalize();
-		move *= freeFloatMovementCmp->GetMovementSpeed() * 0.016f; //TMP dt
+		move *= freeFloatMovementCmp->GetMovementSpeed() * deltaTime;
 
 		transCmp->SetLocalTranslation(transCmp->GetLocalTranslation() + transCmp->GetLocalRotation() * move);
 		
@@ -41,6 +43,18 @@ void MovementSystem::MovementUpdatePhase(World* world)
 				transCmp->SetLocalRotation(rot);
 			}
 		}
+	}
+	for (auto tempTuple : world->IterateComponents<MovementComponent, TransformComponent>())
+	{
+		TransformComponent* transCmp = std::get<TransformComponent*>(tempTuple);
+		MovementComponent* movementCmp = std::get<MovementComponent*>(tempTuple);
+
+		movementCmp->SetMovementSpeed(movementCmp->GetMovementSpeed() + movementCmp->GetMovementAcc() * deltaTime);
+
+		if (movementCmp->GetMaxMovementSpeed() != 0.0f && movementCmp->GetMovementSpeed() > movementCmp->GetMaxMovementSpeed())
+			movementCmp->SetMovementSpeed(movementCmp->GetMaxMovementSpeed());
+
+		transCmp->SetLocalTranslation(transCmp->GetLocalTranslation() + movementCmp->GetDirection() * movementCmp->GetMovementSpeed() * deltaTime);
 	}
 }
 
